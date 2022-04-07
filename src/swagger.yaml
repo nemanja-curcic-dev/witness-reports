@@ -1,0 +1,77 @@
+openapi: 3.0.0
+info:
+  version: '1.0.0'
+  title: 'Witness reporting'
+  description: 'An API for posting witness reports'
+  contact:
+    name: 'Nemanja Curcic'
+    email: nemanja.curcic.dev@gmail.com
+    url: https://github.com/nemanja-curcic-dev
+servers:
+  - description: Dev server for witness reports
+    url: http://localhost:3000/api/v1/
+paths:
+  /witness-report:
+    post:
+      description: Create a witness report
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: John Doe
+                phoneNumber:
+                  type: string
+                  example: 065/222-111                
+      responses:
+        201:
+          description: Successful creation of a witness report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: Witness report successfully posted
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  $ref: '#/components/schemas/Error'
+        404:
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: Not found
+
+components:
+  schemas:
+    Error:
+      description: Error model
+      properties:
+        value:
+          type: string
+          example: Value name
+        msg:
+          type: string
+          example: Not valid value
+        param:
+          type: string
+          example: Parameter name
+        location:
+          type: string
+          example: body
