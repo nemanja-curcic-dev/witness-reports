@@ -69,6 +69,7 @@ router.post(
             const error = e as Error;
             let status = 500;
 
+            // if errors are related to invalid phone number return 400 bad request, else return 500
             if (
                 error.message === 'Invalid country calling code' ||
                 error.message ===

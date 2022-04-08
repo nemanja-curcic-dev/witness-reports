@@ -22,8 +22,10 @@ export class MostWantedService {
     public titleExists = async (title: string): Promise<string | undefined> => {
         const pageSize = 50;
         let page = 1;
+        // remove white spaces and set all characters to lower case in provided title
         const parsedTitle = title.toLowerCase().replace(/\s/g, '');
 
+        // try to get searched title from cache
         const cachedTitle = await this.cache.get(parsedTitle);
         if (cachedTitle) {
             logger.debug(`Key ${parsedTitle} present in cache... `);
@@ -69,7 +71,7 @@ export class MostWantedService {
                 return items[0].title;
             }
 
-            // get only titles of the retrieved data
+            // get only titles from the retrieved data
             const wantedTitles = items.map(
                 (obj: { title: string }) => obj.title
             );
@@ -84,14 +86,16 @@ export class MostWantedService {
         titles: string[],
         searchedTitle: string
     ): Promise<string | undefined> => {
-        // try to find the closest match
+        // because wanted API will return multiple matches
+        // e.g for John Lima it will return both John Lima and John Doe
+        // try to find the closest matching result
         let highestMatching = -1;
-        const titleDifferencePairs: { title: string; matching: number }[] = [];
+        const titleMatchingPairs: { title: string; matching: number }[] = [];
 
         for (const title of titles) {
             const titleParsed = title.toLowerCase().replace(/\s/g, '');
 
-            // get the difference between current title and searched title
+            // get the number of matching characters in current title and searched title
             const matching = this.getNumberOfMatchingCharacters(
                 this.diff.diff_main(searchedTitle, titleParsed)
             );
@@ -100,15 +104,17 @@ export class MostWantedService {
                 highestMatching = matching;
             }
 
-            titleDifferencePairs.push({ title: title, matching: matching });
+            titleMatchingPairs.push({ title: title, matching: matching });
         }
 
-        const filteredTitles = titleDifferencePairs.filter((obj) => {
-            return obj.matching >= highestMatching;
+        // filter only for those that have highest matching
+        const filteredTitles = titleMatchingPairs.filter((obj) => {
+            return obj.matching === highestMatching;
         });
 
         if (filteredTitles.length === 1) {
             logger.debug(`Found one matching title ${filteredTitles[0].title}`);
+            // if title is found set cache
             await this.cache.set(
                 searchedTitle,
                 filteredTitles[0].title,
@@ -117,6 +123,8 @@ export class MostWantedService {
             );
             return filteredTitles[0].title;
         } else {
+            // if length of filtered titles is other than 1, either there are no matched titles
+            // or there are multiple matching so it cant be decided which one is correct
             logger.debug('Multiple or no matching titles found.');
         }
     };
@@ -124,7 +132,7 @@ export class MostWantedService {
     private getNumberOfMatchingCharacters = (
         distances: [number, string][]
     ): number => {
-        // get array with matching characters
+        // get number of matching characters
         const matching: string[] = distances
             .filter((d) => d[0] === 0)
             .map((d) => d[1]);
@@ -132,10 +140,6 @@ export class MostWantedService {
     };
 
     private getCache = () => {
-        if (this.cache) {
-            return this.cache;
-        }
-
         const redis = new Redis({
             port: Envs.CACHE_PORT,
             host: Envs.CACHE_HOST,

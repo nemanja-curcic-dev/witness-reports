@@ -10,7 +10,7 @@ const swaggerDocument = YAML.load(path.join(__dirname, './swagger.yaml'));
 const routePrefix = '/api/v1/';
 
 app.use(express.json());
-app.use(`${routePrefix}witness-report`, router);
+app.use(`${routePrefix}witness-reports`, router);
 app.use(`${routePrefix}docs`, swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 export default app;

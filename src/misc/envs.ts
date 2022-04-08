@@ -16,5 +16,5 @@ export default class Envs {
     public static CACHE_HOST: string = process.env.CACHE_HOST || '127.0.0.1';
     public static CACHE_PORT: number = parseInt(process.env.CACHE_PORT || '6379');
 	public static CACHE_PASSWORD: string = process.env.CACHE_PASSWORD || 'password'; // should be secret
-    public static CACHE_TTL: number = parseInt(process.env.CACHE_TTL || '86400'); 
+    public static CACHE_TTL: number = parseInt(process.env.CACHE_TTL || '86400'); // e.g. store found title in cache for one day
 }

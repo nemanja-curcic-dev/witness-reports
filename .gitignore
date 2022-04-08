@@ -61,7 +61,5 @@ typings/
 .vscode
 dist
 
-# Policies
-policies.tar.gz
-policies/bindings/
-policies/coverage/*.json
+# other
+out/out.txt

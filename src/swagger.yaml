@@ -11,7 +11,7 @@ servers:
   - description: Dev server for witness reports
     url: http://localhost:3000/api/v1/
 paths:
-  /witness-report:
+  /witness-reports:
     post:
       description: Create a witness report
       requestBody:
@@ -26,7 +26,7 @@ paths:
                   example: John Doe
                 phoneNumber:
                   type: string
-                  example: 065/222-111                
+                  example: '+38165222111'                
       responses:
         201:
           description: Successful creation of a witness report
@@ -57,11 +57,21 @@ paths:
                   detail:
                     type: string
                     example: Not found
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: Error
 
 components:
   schemas:
     Error:
-      description: Error model
+      description: Error schema
       properties:
         value:
           type: string
