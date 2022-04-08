@@ -25,11 +25,14 @@ export class MostWantedService {
         // remove white spaces and set all characters to lower case in provided title
         const parsedTitle = title.toLowerCase().replace(/\s/g, '');
 
+        console.log(this.cache.status);
         // try to get searched title from cache
-        const cachedTitle = await this.cache.get(parsedTitle);
-        if (cachedTitle) {
-            logger.debug(`Key ${parsedTitle} present in cache... `);
-            return cachedTitle;
+        if (this.cache.status === 'ready') {
+            const cachedTitle = await this.cache.get(parsedTitle);
+            if (cachedTitle) {
+                logger.debug(`Key ${parsedTitle} present in cache... `);
+                return cachedTitle;
+            }
         }
 
         logger.debug(
@@ -115,12 +118,14 @@ export class MostWantedService {
         if (filteredTitles.length === 1) {
             logger.debug(`Found one matching title ${filteredTitles[0].title}`);
             // if title is found set cache
-            await this.cache.set(
-                searchedTitle,
-                filteredTitles[0].title,
-                'EX',
-                Envs.CACHE_TTL
-            );
+            if (this.cache.status === 'ready') {
+                await this.cache.set(
+                    searchedTitle,
+                    filteredTitles[0].title,
+                    'EX',
+                    Envs.CACHE_TTL
+                );
+            }
             return filteredTitles[0].title;
         } else {
             // if length of filtered titles is other than 1, either there are no matched titles
