@@ -25,7 +25,6 @@ export class MostWantedService {
         // remove white spaces and set all characters to lower case in provided title
         const parsedTitle = title.toLowerCase().replace(/\s/g, '');
 
-        console.log(this.cache.status);
         // try to get searched title from cache
         if (this.cache.status === 'ready') {
             const cachedTitle = await this.cache.get(parsedTitle);
