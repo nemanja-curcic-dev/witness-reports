@@ -16,11 +16,7 @@ export class MostWantedService {
         });
 
         this.diff = new diff.diff_match_patch();
-        this.cache = new Redis({
-            port: Envs.CACHE_PORT,
-            host: Envs.CACHE_HOST,
-            password: Envs.CACHE_PASSWORD,
-        });
+        this.cache = this.getCache();
     }
 
     public titleExists = async (title: string): Promise<string | undefined> => {
@@ -28,10 +24,10 @@ export class MostWantedService {
         let page = 1;
         const parsedTitle = title.toLowerCase().replace(/\s/g, '');
 
-        const key = await this.cache.get(parsedTitle);
-        if (key) {
+        const cachedTitle = await this.cache.get(parsedTitle);
+        if (cachedTitle) {
             logger.debug(`Key ${parsedTitle} present in cache... `);
-            return title;
+            return cachedTitle;
         }
 
         logger.debug(
@@ -133,5 +129,33 @@ export class MostWantedService {
             .filter((d) => d[0] === 0)
             .map((d) => d[1]);
         return matching.reduce((a, b) => a + b.length, 0);
+    };
+
+    private getCache = () => {
+        if (this.cache) {
+            return this.cache;
+        }
+
+        const redis = new Redis({
+            port: Envs.CACHE_PORT,
+            host: Envs.CACHE_HOST,
+            password: Envs.CACHE_PASSWORD,
+            retryStrategy(times) {
+                const delay = Math.min(times * 500, 5000);
+                return delay;
+            },
+        });
+
+        redis.on('error', () => {
+            logger.error(
+                'Could not connect to redis server, or the connection is lost. '
+            );
+        });
+
+        redis.on('ready', () => {
+            logger.info('Successfully connected to redis server. ');
+        });
+
+        return redis;
     };
 }

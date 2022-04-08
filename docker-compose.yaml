@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  witness-report:
+    build: 
+      context: .
+    ports:
+      - '3000:3000'
+    environment:
+      - CACHE_HOST=redis
+    volumes:
+      - ./out:/out
+    depends_on:
+      - redis
+  redis:
+    image: bitnami/redis:6.2
+    environment:
+      - REDIS_PASSWORD=password

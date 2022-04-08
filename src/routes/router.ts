@@ -58,7 +58,7 @@ router.post(
 
             const data = `${title},${phoneNumber.getRawInput()},${countryCode}\n`;
             await appendToFileAsync(
-                path.join(__dirname, '../out/out.txt'),
+                path.join(__dirname, '../../out/out.txt'),
                 data
             );
 
